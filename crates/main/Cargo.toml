@@ -1,0 +1,9 @@
+[package]
+name = "main"
+edition = "2021"
+version = "0.1.0"
+
+[dependencies]
+panic-halt.workspace = true
+wio_terminal.workspace = true
+embedded-hal.workspace = true
