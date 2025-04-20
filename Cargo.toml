@@ -7,10 +7,9 @@ resolver = "2"
 [workspace.package]
 authors = ["noshishiRust"]
 name = "wio-demo"
-edition = "2021"
-version = "0.1.0"
 
 [workspace.dependencies]
+driver = { path = "./crates/driver" }
 panic-halt = "1.0.0"
 wio_terminal = "0.7.2"
 embedded-hal = "1.0.0"
