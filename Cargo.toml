@@ -4,10 +4,6 @@ members = [
 ]
 resolver = "2"
 
-[workspace.package]
-authors = ["noshishiRust"]
-name = "wio-demo"
-
 [workspace.dependencies]
 driver = { path = "./crates/driver" }
 panic-halt = "1.0.0"

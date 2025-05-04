@@ -1,8 +1,10 @@
 #![no_std]
 
-use wio_terminal as wio;
+use panic_halt as _;
+
 use wio::hal::gpio::*;
 use wio::prelude::*;
+use wio_terminal as wio;
 
 pub struct Led {
     pin: Pin<PA15, Output<PushPull>>,
@@ -10,7 +12,9 @@ pub struct Led {
 
 impl Led {
     pub fn new(pin: Pin<PA15, Disabled<Floating>>) -> Self {
-        Self { pin: pin.into_push_pull_output() }
+        Self {
+            pin: pin.into_push_pull_output(),
+        }
     }
 
     pub fn turn_on(&mut self) {
@@ -32,7 +36,9 @@ pub struct Button1 {
 
 impl Button1 {
     pub fn new(pin: Pin<PC26, Disabled<Floating>>) -> Self {
-        Self { pin: pin.into_floating_input() }
+        Self {
+            pin: pin.into_floating_input(),
+        }
     }
 
     pub fn is_pressed(&mut self) -> bool {
