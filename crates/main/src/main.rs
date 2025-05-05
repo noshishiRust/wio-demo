@@ -1,13 +1,27 @@
 #![no_std]
 #![no_main]
 
-use panic_halt as _;
 use wio_terminal as wio;
 
+use cortex_m::asm;
+use driver::println_uart;
+use driver::uart::init_uart;
+use driver::led::Led;
+use driver::button::Button1;
 use wio::entry;
 use wio::hal::clock::GenericClockController;
 use wio::pac::Peripherals;
-use wio::prelude::*;
+
+use core::panic::PanicInfo;
+
+#[panic_handler]
+fn panic(info: &PanicInfo) -> ! {
+    println_uart!("Panic: {}", info);
+
+    loop {
+        asm::wfi();
+    }
+}
 
 #[entry]
 fn main() -> ! {
@@ -23,16 +37,36 @@ fn main() -> ! {
 
     let pins = wio::Pins::new(peripherals.PORT).split();
 
-    let mut serials = pins.uart.init(
+    init_uart(
+        pins.uart,
         &mut clocks,
-        115200.Hz(),
         peripherals.SERCOM2,
         &mut peripherals.MCLK,
     );
 
-    for c in b"Hello, world!" {
-        nb::block!(serials.write(*c)).unwrap();
-    }
+    let mut led = Led::new(pins.user_led);
+    let mut button1 = Button1::new(pins.buttons.button1);
 
-    loop {}
+    let mut output_count = 0;
+
+    println_uart!("Hello, Wio Terminal! Uart is initialized.");
+
+    loop {
+        if button1.is_pressed() {
+            led.toggle();
+
+            if output_count == 0 {
+                output_count = 1;
+                println_uart!("Button 1 pressed");
+            }
+
+        } else {
+            led.turn_off();
+
+            if output_count == 1 {
+                output_count = 0;
+            }
+
+        }
+    }
 }

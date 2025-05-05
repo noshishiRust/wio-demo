@@ -7,6 +7,4 @@ version = "0.1.0"
 panic-halt.workspace = true
 wio_terminal.workspace = true
 embedded-hal.workspace = true
-
-[lib]
-crate-type = ["cdylib", "staticlib"]
+cortex-m.workspace = true

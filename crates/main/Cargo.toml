@@ -9,3 +9,4 @@ driver.workspace = true
 panic-halt.workspace = true
 wio_terminal.workspace = true
 embedded-hal.workspace = true
+cortex-m.workspace = true

@@ -9,3 +9,5 @@ driver = { path = "./crates/driver" }
 panic-halt = "1.0.0"
 wio_terminal = "0.7.2"
 embedded-hal = "1.0.0"
+cortex-m = "0.7.7"
+
