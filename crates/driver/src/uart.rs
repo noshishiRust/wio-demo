@@ -14,7 +14,8 @@ use wio::prelude::*;
 
 type UartConfig = Config<Pads<Sercom2, IoSet2, Pin<PB27, Alternate<C>>, Pin<PB26, Alternate<C>>>>;
 
-static SERIAL: Mutex<RefCell<Option<Uart<UartConfig, Duplex>>>> = Mutex::new(RefCell::new(None));
+pub static SERIAL: Mutex<RefCell<Option<Uart<UartConfig, Duplex>>>> =
+    Mutex::new(RefCell::new(None));
 
 pub fn init_uart(
     uart: wio::Uart,
