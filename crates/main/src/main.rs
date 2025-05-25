@@ -4,10 +4,10 @@
 use wio_terminal as wio;
 
 use cortex_m::asm;
+use driver::button::Button1;
+use driver::led::Led;
 use driver::println_uart;
 use driver::uart::init_uart;
-use driver::led::Led;
-use driver::button::Button1;
 use wio::entry;
 use wio::hal::clock::GenericClockController;
 use wio::pac::Peripherals;
@@ -59,14 +59,12 @@ fn main() -> ! {
                 output_count = 1;
                 println_uart!("Button 1 pressed");
             }
-
         } else {
             led.turn_off();
 
             if output_count == 1 {
                 output_count = 0;
             }
-
         }
     }
 }
