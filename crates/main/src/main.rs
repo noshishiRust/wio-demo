@@ -4,13 +4,14 @@
 use wio_terminal as wio;
 
 use cortex_m::asm;
-use driver::button::Button1;
 use driver::led::Led;
 use driver::println_uart;
 use driver::uart::init_uart;
 use wio::entry;
 use wio::hal::clock::GenericClockController;
-use wio::pac::Peripherals;
+use wio::hal::delay::Delay;
+use wio::pac::{CorePeripherals, Peripherals};
+use wio::prelude::*;
 
 use core::panic::PanicInfo;
 
@@ -26,6 +27,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[entry]
 fn main() -> ! {
     let mut peripherals = Peripherals::take().unwrap();
+    let core = CorePeripherals::take().unwrap();
 
     let mut clocks = GenericClockController::with_external_32kosc(
         peripherals.GCLK, // https://www.intel.co.jp/content/www/jp/ja/docs/programmable/683047/16-0/global-clock-control-block.html
@@ -34,6 +36,8 @@ fn main() -> ! {
         &mut peripherals.OSCCTRL,
         &mut peripherals.NVMCTRL,
     );
+
+    let mut delay = Delay::new(core.SYST, &mut clocks);
 
     let pins = wio::Pins::new(peripherals.PORT).split();
 
@@ -45,26 +49,11 @@ fn main() -> ! {
     );
 
     let mut led = Led::new(pins.user_led);
-    let mut button1 = Button1::new(pins.buttons.button1);
-
-    let mut output_count = 0;
 
     println_uart!("Hello, Wio Terminal! Uart is initialized.");
 
     loop {
-        if button1.is_pressed() {
-            led.toggle();
-
-            if output_count == 0 {
-                output_count = 1;
-                println_uart!("Button 1 pressed");
-            }
-        } else {
-            led.turn_off();
-
-            if output_count == 1 {
-                output_count = 0;
-            }
-        }
+        led.toggle();
+        delay.delay_ms(1000_u16);
     }
 }
