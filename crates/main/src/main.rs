@@ -7,20 +7,20 @@ use core::panic::PanicInfo;
 use cortex_m::asm;
 use cortex_m::peripheral::NVIC;
 use driver::led::Led;
+use driver::timer::timer_counter::TimerCounterTC3;
 use driver::println_uart;
 use driver::uart::init_uart;
 use wio::entry;
 use wio::hal::clock::GenericClockController;
 use wio::hal::delay::Delay;
-use wio::hal::timer::TimerCounter;
-use wio::pac::gclk::pchctrl::GEN_A;
+use core::ops::DerefMut;
 use wio::pac::interrupt;
-use wio::pac::{CorePeripherals, Peripherals, TC3};
+use wio::pac::{CorePeripherals, Peripherals};
 use wio::prelude::*;
 
 struct Ctx {
     led: Led,
-    tc3: TimerCounter<TC3>,
+    tc3: TimerCounterTC3,
 }
 
 static mut CTX: Option<Ctx> = None;
@@ -30,7 +30,7 @@ static mut CTX: Option<Ctx> = None;
 fn TC3() {
     unsafe {
         let ctx = CTX.as_mut().unwrap();
-        ctx.tc3.wait().unwrap();
+        ctx.tc3.deref_mut().wait().unwrap();
         ctx.led.toggle();
     }
 }
@@ -61,16 +61,14 @@ fn main() -> ! {
 
     let mut delay = Delay::new(core.SYST, &mut clocks);
 
-    let gclk5 = clocks.get_gclk(GEN_A::GCLK5).unwrap();
-    let timer_clock = clocks.tc2_tc3(&gclk5).unwrap();
-    let mut tc3 = TimerCounter::tc3_(&timer_clock, peripherals.TC3, &mut peripherals.MCLK);
+    let mut tc3 = TimerCounterTC3::new(&mut clocks, peripherals.TC3, &mut peripherals.MCLK);
 
     unsafe {
         NVIC::unmask(interrupt::TC3);
     }
 
-    tc3.start(1.secs());
-    tc3.enable_interrupt();
+    tc3.deref_mut().start(1.secs());
+    tc3.deref_mut().enable_interrupt();
 
     let led = Led::new(pins.user_led);
 
