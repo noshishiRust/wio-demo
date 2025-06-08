@@ -4,6 +4,7 @@ edition = "2021"
 version = "0.1.0"
 
 [dependencies]
+atsamd-hal.workspace = true
 panic-halt.workspace = true
 wio_terminal.workspace = true
 embedded-hal.workspace = true

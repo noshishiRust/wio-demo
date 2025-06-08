@@ -6,8 +6,7 @@ use wio_terminal as wio;
 use core::panic::PanicInfo;
 use cortex_m::asm;
 use cortex_m::peripheral::NVIC;
-use driver::led::Led;
-use driver::timer::timer_counter::TimerCounterTC3;
+use driver::{Led, TimerCounterTC3, Buzzer};
 use driver::println_uart;
 use driver::uart::init_uart;
 use wio::entry;
@@ -16,6 +15,7 @@ use wio::hal::delay::Delay;
 use core::ops::DerefMut;
 use wio::pac::interrupt;
 use wio::pac::{CorePeripherals, Peripherals};
+use wio::hal::pwm::Channel;
 use wio::prelude::*;
 
 struct Ctx {
@@ -71,6 +71,7 @@ fn main() -> ! {
     tc3.deref_mut().enable_interrupt();
 
     let led = Led::new(pins.user_led);
+    let mut buzzer = Buzzer::new(pins.buzzer, &mut clocks, peripherals.TCC0, &mut peripherals.MCLK);
 
     unsafe { CTX = Some(Ctx { led, tc3 }) }
 
@@ -83,8 +84,22 @@ fn main() -> ! {
 
     println_uart!("Hello, Wio Terminal! Uart is initialized.");
 
+    let pvm = buzzer.deref_mut();
+
+    let freq = [261, 294, 329, 349, 329, 294, 261, 329, 349, 392, 494];
     loop {
-        println_uart!("Hello?!");
-        delay.delay_ms(1000_u16);
+
+        for f in freq.iter() {
+            pvm.set_period(f.Hz());
+
+            let max_duty = pvm.get_max_duty();
+            pvm.set_duty(Channel::_4, max_duty / 2);
+
+            pvm.enable(Channel::_4);
+            delay.delay_ms(1000_u16);
+            pvm.disable(Channel::_4);
+        }
+
+
     }
 }
