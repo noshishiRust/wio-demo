@@ -1,21 +1,16 @@
-use core::ops::DerefMut;
-
 use wio_terminal as wio;
 
+use core::ops::Deref;
+use core::ops::DerefMut;
 use wio::hal::clock::GenericClockController;
 use wio::hal::timer::TimerCounter;
 use wio::pac::gclk::pchctrl::GEN_A;
 use wio::pac::{MCLK, TC3};
-use core::ops::Deref;
 
 pub struct TimerCounterTC3(TimerCounter<TC3>);
 
 impl TimerCounterTC3 {
-    pub fn new(
-        clocks: &mut GenericClockController,
-        tc3: TC3,
-        mclk: &mut MCLK,
-    ) -> Self {
+    pub fn new(clocks: &mut GenericClockController, tc3: TC3, mclk: &mut MCLK) -> Self {
         let gclk5 = clocks.get_gclk(GEN_A::GCLK5).unwrap();
         let timer_clock = clocks.tc2_tc3(&gclk5).unwrap();
 

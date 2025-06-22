@@ -1,12 +1,11 @@
-use core::ops::{Deref, DerefMut};
-
 use wio_terminal as wio;
 
-use wio::hal::clock::GenericClockController;
-use wio::Buzzer as WioBuzzer;
-use wio::pac::{MCLK, TCC0};
 use atsamd_hal::pwm::Tcc0Pwm;
+use core::ops::{Deref, DerefMut};
 use wio::aliases::{BuzzerCtrlId, BuzzerCtrlMode};
+use wio::hal::clock::GenericClockController;
+use wio::pac::{MCLK, TCC0};
+use wio::Buzzer as WioBuzzer;
 
 pub struct Buzzer(Tcc0Pwm<BuzzerCtrlId, BuzzerCtrlMode>);
 

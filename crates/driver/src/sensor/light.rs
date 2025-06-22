@@ -1,11 +1,11 @@
 use wio_terminal as wio;
 
-use wio::hal::clock::GenericClockController;
-use wio::LightSensor as WioLightSensor;
-use wio::pac::{MCLK, ADC1};
-use wio::aliases::LightSensorAdc;
 use atsamd_hal::adc::Adc;
 use core::ops::{Deref, DerefMut};
+use wio::aliases::LightSensorAdc;
+use wio::hal::clock::GenericClockController;
+use wio::pac::{ADC1, MCLK};
+use wio::LightSensor as WioLightSensor;
 
 pub struct LightSensor((Adc<ADC1>, LightSensorAdc));
 
