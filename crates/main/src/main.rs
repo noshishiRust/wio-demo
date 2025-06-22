@@ -6,7 +6,7 @@ use wio_terminal as wio;
 use core::panic::PanicInfo;
 use cortex_m::asm;
 use cortex_m::peripheral::NVIC;
-use driver::{Led, TimerCounterTC3, Buzzer};
+use driver::{Led, TimerCounterTC3, LightSensor};
 use driver::println_uart;
 use driver::uart::init_uart;
 use wio::entry;
@@ -15,7 +15,6 @@ use wio::hal::delay::Delay;
 use core::ops::DerefMut;
 use wio::pac::interrupt;
 use wio::pac::{CorePeripherals, Peripherals};
-use wio::hal::pwm::Channel;
 use wio::prelude::*;
 
 struct Ctx {
@@ -58,7 +57,6 @@ fn main() -> ! {
     );
 
     let pins = wio::Pins::new(peripherals.PORT).split();
-
     let mut delay = Delay::new(core.SYST, &mut clocks);
 
     let mut tc3 = TimerCounterTC3::new(&mut clocks, peripherals.TC3, &mut peripherals.MCLK);
@@ -71,7 +69,11 @@ fn main() -> ! {
     tc3.deref_mut().enable_interrupt();
 
     let led = Led::new(pins.user_led);
-    let mut buzzer = Buzzer::new(pins.buzzer, &mut clocks, peripherals.TCC0, &mut peripherals.MCLK);
+
+
+    let mut light_sensor = LightSensor::new(pins.light_sensor, peripherals.ADC1, &mut clocks, &mut peripherals.MCLK);
+    let adc_pd1 = light_sensor.deref_mut();
+
 
     unsafe { CTX = Some(Ctx { led, tc3 }) }
 
@@ -84,22 +86,9 @@ fn main() -> ! {
 
     println_uart!("Hello, Wio Terminal! Uart is initialized.");
 
-    let pvm = buzzer.deref_mut();
-
-    let freq = [261, 294, 329, 349, 329, 294, 261, 329, 349, 392, 494];
     loop {
-
-        for f in freq.iter() {
-            pvm.set_period(f.Hz());
-
-            let max_duty = pvm.get_max_duty();
-            pvm.set_duty(Channel::_4, max_duty / 2);
-
-            pvm.enable(Channel::_4);
-            delay.delay_ms(1000_u16);
-            pvm.disable(Channel::_4);
-        }
-
-
+        let value: u16 = nb::block!(adc_pd1.0.read(&mut adc_pd1.1)).unwrap();
+        println_uart!("light sensor value: {}", value);
+        delay.delay_ms(1000u16);
     }
 }
